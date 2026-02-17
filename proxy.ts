@@ -3,21 +3,28 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 export async function proxy(req: NextRequest) {
-    let response = NextResponse.next()
+    let response = NextResponse.next({
+        request: req,
+    })
 
     const supabase = createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
         {
             cookies: {
-                get(name: string) {
-                    return req.cookies.get(name)?.value
+                getAll() {
+                    return req.cookies.getAll()
                 },
-                set(name: string, value: string, options: any) {
-                    response.cookies.set({ name, value, ...options })
-                },
-                remove(name: string, options: any) {
-                    response.cookies.set({ name, value: '', ...options })
+                setAll(cookiesToSet) {
+                    cookiesToSet.forEach(({ name, value }) => req.cookies.set(name, value))
+
+                    response = NextResponse.next({
+                        request: req,
+                    })
+
+                    cookiesToSet.forEach(({ name, value, options }) => {
+                        response.cookies.set(name, value, options)
+                    })
                 },
             },
         }
@@ -27,16 +34,15 @@ export async function proxy(req: NextRequest) {
         data: { user },
     } = await supabase.auth.getUser()
 
-    // 🔐 Bloqueia dashboard se não estiver logado
     if (!user && req.nextUrl.pathname.startsWith('/dashboard')) {
         return NextResponse.redirect(new URL('/login', req.url))
     }
 
-    // 🚫 Impede usuário logado de acessar login/signup
-    if (user && (
-        req.nextUrl.pathname.startsWith('/login') ||
-        req.nextUrl.pathname.startsWith('/signup')
-    )) {
+    if (
+        user &&
+        (req.nextUrl.pathname.startsWith('/login') ||
+            req.nextUrl.pathname.startsWith('/signup'))
+    ) {
         return NextResponse.redirect(new URL('/dashboard', req.url))
     }
 
@@ -44,9 +50,5 @@ export async function proxy(req: NextRequest) {
 }
 
 export const config = {
-    matcher: [
-        '/dashboard/:path*',
-        '/login',
-        '/signup',
-    ],
+    matcher: ['/dashboard/:path*', '/login', '/signup'],
 }

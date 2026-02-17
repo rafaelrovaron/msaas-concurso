@@ -2,12 +2,14 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase/supabaseClient'
-import { useEffect, useState } from 'react'
+import { createClient } from '@/lib/supabase/client'
+import { useEffect, useMemo, useState } from 'react'
+import type { User } from '@supabase/supabase-js'
 
 export default function Header() {
     const router = useRouter()
-    const [user, setUser] = useState<any>(null)
+    const supabase = useMemo(() => createClient(), [])
+    const [user, setUser] = useState<User | null>(null)
 
     useEffect(() => {
         const getUser = async () => {
@@ -16,11 +18,22 @@ export default function Header() {
         }
 
         getUser()
-    }, [])
+
+        const {
+            data: { subscription },
+        } = supabase.auth.onAuthStateChange((_event, session) => {
+            setUser(session?.user ?? null)
+        })
+
+        return () => {
+            subscription.unsubscribe()
+        }
+    }, [supabase])
 
     const handleLogout = async () => {
         await supabase.auth.signOut()
         router.push('/login')
+        router.refresh()
     }
 
     return (

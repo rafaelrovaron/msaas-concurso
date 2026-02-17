@@ -23,15 +23,25 @@ export default function DashboardSidebar() {
 
             <nav className="space-y-2">
                 <Link href="/dashboard" className={linkClass('/dashboard')}>
-                    Início
+                    Inicio
                 </Link>
+            </nav>
 
-                <Link href="/dashboard/profile" className={linkClass('/dashboard/profile')}>
-                    Perfil
+            <nav className="space-y-2">
+                <Link href="/dashboard/exams" className={linkClass('/dashboard/exams')}>
+                    Provas
                 </Link>
+            </nav>
 
-                <Link href="/dashboard/settings" className={linkClass('/dashboard/settings')}>
-                    Configurações
+            <nav className="space-y-2">
+                <Link href="/dashboard/study" className={linkClass('/dashboard/study')}>
+                    Estudo
+                </Link>
+            </nav>
+
+            <nav className="space-y-2">
+                <Link href="/dashboard/progress" className={linkClass('/dashboard/progress')}>
+                    Progresso
                 </Link>
             </nav>
 
