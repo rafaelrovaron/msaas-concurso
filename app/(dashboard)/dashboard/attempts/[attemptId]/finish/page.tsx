@@ -26,7 +26,7 @@ export default async function AttemptFinishPage({
   if (attemptError || !attempt) {
     return (
       <div className="p-8">
-        <p className="text-sm text-red-600">Tentativa não encontrada.</p>
+        <p className="text-sm text-red-600">Tentativa nao encontrada.</p>
         <Link href="/dashboard/exams" className="text-sm text-blue-600 hover:underline">
           Voltar
         </Link>
@@ -36,17 +36,16 @@ export default async function AttemptFinishPage({
 
   if (attempt.user_id !== user.id) redirect('/dashboard/exams')
 
-  // Carrega exam (nota de corte + título)
+  // Carrega exam (titulo)
   const { data: exam } = await supabase
     .from('exams')
-    .select('concurso, banca, ano, nota_corte')
+    .select('concurso, banca, ano')
     .eq('id', attempt.exam_id)
     .maybeSingle()
 
   const examTitle = exam ? `${exam.concurso} • ${exam.banca} • ${exam.ano}` : 'Prova'
-  const notaCorte = exam?.nota_corte ?? null
 
-  // Total de questões dessa tentativa (considerando matéria)
+  // Total de questoes dessa tentativa (considerando materia)
   let totalQ = supabase
     .from('questions')
     .select('id', { count: 'exact', head: true })
@@ -75,10 +74,10 @@ export default async function AttemptFinishPage({
   const unanswered = Math.max(0, total - answered)
   const percent = total > 0 ? Math.round((correct / total) * 100) : 0
 
-  const passed =
-    notaCorte !== null ? correct >= notaCorte : null
+  const minPercentToPass = 70
+  const passed = total > 0 ? percent >= minPercentToPass : null
 
-  // Finaliza attempt se ainda não finalizado
+  // Finaliza attempt se ainda nao finalizado
   if (!attempt.finished_at) {
     await supabase
       .from('attempts')
@@ -96,7 +95,7 @@ export default async function AttemptFinishPage({
         <div className="text-sm text-gray-500">{examTitle}</div>
 
         <h1 className="mt-2 text-2xl font-semibold text-gray-900">
-          Prova finalizada ✅
+          Prova finalizada ?
         </h1>
 
         {attempt.materia && (
@@ -120,7 +119,7 @@ export default async function AttemptFinishPage({
             </div>
             {unanswered > 0 && (
               <div className="mt-1 text-sm text-gray-600">
-                Não respondidas: <span className="font-medium">{unanswered}</span>
+                Nao respondidas: <span className="font-medium">{unanswered}</span>
               </div>
             )}
           </div>
@@ -128,18 +127,23 @@ export default async function AttemptFinishPage({
           <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm sm:col-span-2">
             <div className="text-sm text-gray-500">Status</div>
             <div className="mt-1 text-base text-gray-900">
-              {notaCorte === null ? (
-                <span className="text-gray-600">Sem nota de corte definida</span>
+              {total === 0 ? (
+                <span className="text-gray-600">Sem questoes para avaliar</span>
               ) : passed ? (
                 <span className="font-medium text-green-700">
-                  ✅ Aprovado (corte: {notaCorte})
+                  ✅ Aprovado ({percent}% de acerto)
                 </span>
               ) : (
                 <span className="font-medium text-red-700">
-                  ❌ Abaixo do corte (corte: {notaCorte})
+                  ❌ Abaixo do corte ({percent}% de acerto)
                 </span>
               )}
             </div>
+            {total > 0 && (
+              <div className="mt-1 text-sm text-gray-600">
+                Minimo para aprovacao: {minPercentToPass}%.
+              </div>
+            )}
           </div>
         </div>
 
@@ -148,7 +152,7 @@ export default async function AttemptFinishPage({
             href={`/dashboard/attempts/${attemptId}/review`}
             className="inline-flex justify-center rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700 transition"
           >
-            Ver revisão (gabarito)
+            Ver revisao (gabarito)
           </Link>
 
           <Link
