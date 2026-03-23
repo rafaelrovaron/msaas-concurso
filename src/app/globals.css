@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f4f7fb;
+  --foreground: #112033;
+  --border: rgba(148, 163, 184, 0.22);
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  background:
+    radial-gradient(circle at top left, rgba(15, 108, 189, 0.12), transparent 28%),
+    radial-gradient(circle at top right, rgba(14, 116, 144, 0.12), transparent 24%),
+    linear-gradient(180deg, #f8fbff 0%, var(--background) 100%);
+  color: var(--foreground);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  border-color: var(--border);
+}
+
+::selection {
+  background: rgba(15, 108, 189, 0.18);
+  color: var(--foreground);
+}
