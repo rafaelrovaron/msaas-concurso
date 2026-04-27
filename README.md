@@ -1,36 +1,126 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Concurso Boost
 
-## Getting Started
+Concurso Boost is a micro-SaaS for Brazilian public exam preparation.
 
-First, run the development server:
+The current MVP is focused on a stable study loop:
+
+- choose a real exam or generate a custom one
+- answer a fixed question set
+- finish with pending-question confirmation
+- review mistakes and unanswered questions
+- track basic progress
+
+## Current Scope
+
+The app currently supports:
+
+- authentication with Supabase Auth
+- dashboard and study entry points
+- full exam attempts
+- custom exam attempts
+- attempt runner with explicit answer saving
+- finish flow with unanswered-question warnings
+- review flow with "only incorrect" behavior
+- basic progress page
+
+Important product rules:
+
+- full exam attempts must persist their own question order
+- custom attempts must persist the selected question set and order
+- unanswered questions count as incorrect on finish
+- "only incorrect" review must include unanswered questions
+
+## Tech Stack
+
+- Node.js `v24.13.0`
+- npm
+- Next.js `16`
+- React `19`
+- TypeScript `5`
+- Tailwind `4`
+- Supabase
+
+## Project Structure
+
+```text
+src/app          Next.js routes and pages
+src/components   UI and feature components
+src/lib          business logic, validations, utilities
+src/lib/supabase Supabase clients
+supabase         migrations and seeds
+```
+
+## Local Development
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Run the app:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Local URL:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```text
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Available Scripts
 
-## Learn More
+```bash
+npm run dev
+npm run build
+npm run lint
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Validation
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Current local validation baseline:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm run lint
+npm run build
+```
 
-## Deploy on Vercel
+Notes:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `npm run build` is currently passing
+- `npm run lint` currently reports warnings that are tracked in `TASKS.md`
+- a dedicated `typecheck` script is still pending
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Documentation
+
+Use these files as the main project references:
+
+- `PRD.md` for product priorities and execution phases
+- `TASKS.md` for the prioritized implementation queue
+- `AGENTS.md` for implementation rules and constraints
+- `PROJECT_CONTEXT.md` for flow behavior
+- `DATABASE_CONTEXT.md` for confirmed schema and security notes
+
+When documentation conflicts with actual schema assumptions, follow `DATABASE_CONTEXT.md`.
+
+## Database Notes
+
+Current confirmed schema notes:
+
+- `banca` and `ano` are supported exam fields today
+- `orgao` is not confirmed in the current schema
+- `cargo` is a future schema item and should not be assumed in current implementation
+- question options are stored inline on `questions`
+- unanswered questions are represented by missing rows in `public.answers`
+- `attempt_questions` is the source of truth for attempt composition and order
+
+## Current Priorities
+
+The next priorities are:
+
+1. harden attempt data integrity
+2. validate RLS and ownership rules
+3. generate typed Supabase clients
+4. improve test coverage for the core study loop

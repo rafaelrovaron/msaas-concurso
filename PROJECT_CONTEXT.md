@@ -46,7 +46,12 @@ Currently confirmed fields include:
 
 - concurso
 - banca
-- year
+- ano
+
+Important current limitation:
+
+- `orgao` is not confirmed in the current schema
+- `cargo` is not confirmed in the current schema
 
 ## questions
 
@@ -59,6 +64,8 @@ Linked to:
 - topic
 
 Question options are currently stored inline on the question row.
+
+There is no confirmed `question_options` table in the current schema.
 
 ## attempts
 
@@ -107,6 +114,11 @@ System:
 3. stores ordered question set in `attempt_questions`
 4. redirects to the runner
 
+Important implementation note:
+
+- this is the intended flow and matches the schema direction
+- the implementation should be hardened so attempt creation is atomic, not partially persisted
+
 ## Answering questions
 
 Users may:
@@ -117,6 +129,11 @@ Users may:
 
 Answers are saved explicitly during the runner flow.
 
+Integrity rule:
+
+- answers may be changed only before the attempt is finished
+- after finish, further writes must be blocked even if the user still has an open tab
+
 ## Finishing exam
 
 If unanswered questions exist:
@@ -125,6 +142,12 @@ If unanswered questions exist:
 2. allow navigation to them
 3. if user still wants to finish, show a second warning
 4. unanswered questions count as incorrect
+
+Finish should also be:
+
+- idempotent
+- resistant to duplicate submits
+- the boundary after which answer writes are no longer accepted
 
 ## Review mode
 
@@ -150,6 +173,16 @@ Important rule:
 
 - do not filter a full exam by discipline before creating the attempt
 
+Current schema note:
+
+- `banca` and `ano` are supported today
+- `cargo` is a future schema item and must not be assumed in current implementation
+
+Ordering note:
+
+- the attempt must persist its own order in `attempt_questions`
+- agents should not claim faithful original exam ordering unless the data model explicitly supports it
+
 ## Custom exam
 
 The user can generate a custom attempt with filters such as:
@@ -161,6 +194,11 @@ The user can generate a custom attempt with filters such as:
 - number of questions
 
 Custom generation must happen server-side.
+
+Inventory rule:
+
+- if the available question set is smaller than the requested amount, the product must either surface a clear warning and generate a smaller attempt or block generation with an explicit error
+- this behavior should be intentional and documented, not accidental
 
 ---
 
@@ -179,6 +217,11 @@ UX priorities:
 - visible progress
 - low cognitive load
 - clear pending-question handling before finish
+
+Current product note:
+
+- a basic progress page already exists in the codebase
+- future work in this area is iterative improvement, not initial delivery
 
 ---
 

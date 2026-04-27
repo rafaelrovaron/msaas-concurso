@@ -1,9 +1,8 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { finishAttempt } from '@/lib/actions/attempts'
-import { createClient } from '@/lib/supabase/client'
+import { finishAttempt, saveAttemptAnswer } from '@/lib/actions/attempts'
 
 type Question = {
   id: string
@@ -55,7 +54,6 @@ export default function AttemptRunner({
   initialIndex: number
 }) {
   const router = useRouter()
-  const supabase = useMemo(() => createClient(), [])
   const total = questions.length
 
   const [answerMap, setAnswerMap] = useState(() => {
@@ -78,6 +76,7 @@ export default function AttemptRunner({
   const [missingList, setMissingList] = useState<number[]>([])
   const [finishStep, setFinishStep] = useState<FinishStep>(null)
   const [isFinishing, setIsFinishing] = useState(false)
+  const [isLocked, setIsLocked] = useState(false)
 
   const answeredCount = answerMap.size
   const missingCount = Math.max(0, total - answeredCount)
@@ -125,20 +124,19 @@ export default function AttemptRunner({
     setSaving(true)
 
     const isCorrect = selected === current.correta
-    const { error: saveError } = await supabase
-      .from('answers')
-      .upsert(
-        {
-          attempt_id: attemptId,
-          question_id: current.id,
-          resposta: selected,
-          correta: isCorrect,
-        },
-        { onConflict: 'attempt_id,question_id' }
-      )
+    const result = await saveAttemptAnswer({
+      attemptId,
+      questionId: current.id,
+      resposta: selected,
+      correta: isCorrect,
+    })
 
-    if (saveError) {
-      setError(saveError.message)
+    if (result.error) {
+      setError(result.error)
+      if (result.finished) {
+        setIsLocked(true)
+        router.push(`/dashboard/attempts/${attemptId}/finish`)
+      }
       setSaving(false)
       return
     }
@@ -367,7 +365,7 @@ export default function AttemptRunner({
               <button
                 type="button"
                 onClick={() => void persistAnswer(false)}
-                disabled={saving}
+                disabled={saving || isLocked}
                 className="rounded-xl bg-sky-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-700 disabled:opacity-50"
               >
                 {saving ? 'Salvando...' : 'Salvar resposta'}
@@ -376,7 +374,7 @@ export default function AttemptRunner({
               <button
                 type="button"
                 onClick={() => void persistAnswer(true)}
-                disabled={saving || index === total}
+                disabled={saving || isLocked || index === total}
                 className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 transition hover:bg-slate-50 disabled:opacity-50"
               >
                 Salvar e avancar

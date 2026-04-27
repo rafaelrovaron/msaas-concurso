@@ -69,40 +69,26 @@ export async function createAttemptWithQuestions({
   filters = {},
 }: CreateAttemptParams): Promise<CreateAttemptResult> {
   if (questionIds.length === 0) {
-    throw new Error('Nenhuma questão encontrada para criar a tentativa.')
+    throw new Error('Nenhuma questao encontrada para criar a tentativa.')
   }
 
-  const { data: attempt, error: attemptError } = await supabase
-    .from('attempts')
-    .insert({
-      user_id: userId,
-      exam_id: examId,
-      mode,
-      discipline,
-      filters,
-    })
-    .select('id')
-    .single()
+  const { data: attemptId, error: attemptError } = await supabase.rpc(
+    'create_attempt_with_questions',
+    {
+      p_user_id: userId,
+      p_mode: mode,
+      p_question_ids: questionIds,
+      p_exam_id: examId,
+      p_discipline: discipline,
+      p_filters: filters,
+    }
+  )
 
-  if (attemptError || !attempt) {
-    throw new Error(attemptError?.message ?? 'Não foi possível criar a tentativa.')
+  if (attemptError || !attemptId) {
+    throw new Error(attemptError?.message ?? 'Nao foi possivel criar a tentativa.')
   }
 
-  const { error: attemptQuestionsError } = await supabase
-    .from('attempt_questions')
-    .insert(
-      questionIds.map((questionId, index) => ({
-        attempt_id: attempt.id,
-        question_id: questionId,
-        position: index + 1,
-      }))
-    )
-
-  if (attemptQuestionsError) {
-    throw new Error(attemptQuestionsError.message)
-  }
-
-  return attempt
+  return { id: attemptId }
 }
 
 export async function createFullExamAttempt({
@@ -208,7 +194,7 @@ export async function createCustomAttempt({
   )
 
   if (selectedQuestionIds.length === 0) {
-    throw new Error('Nenhuma questão encontrada com os filtros selecionados.')
+    throw new Error('Nenhuma questao encontrada com os filtros selecionados.')
   }
 
   return createAttemptWithQuestions({

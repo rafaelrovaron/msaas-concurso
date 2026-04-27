@@ -45,10 +45,14 @@ Users select a real exam and solve all questions.
 Filters available before starting:
 
 - banca (organizer)
-- órgão
 - year
-- cargo
+- cargo (future schema item)
 - search text
+
+Current schema note:
+
+- `cargo` is not yet available in the confirmed Supabase schema
+- agents must not assume unsupported exam metadata fields exist until they are added to the database
 
 Do NOT filter by discipline before starting a full exam.
 
@@ -57,6 +61,11 @@ Starting a full exam must:
 - create an `attempt`
 - persist question order
 - redirect to attempt runner
+
+Ordering note:
+
+- `attempt_questions` is the source of truth for persisted attempt order
+- agents must not assume the current schema already guarantees original exam ordering unless there is an explicit ordering field
 
 ---
 
@@ -78,6 +87,11 @@ Custom exams must:
 - create an `attempt`
 - store the question set
 - persist the order
+
+If fewer questions exist than requested:
+
+- do not silently invent or pad data
+- either return fewer questions with clear UX messaging or block generation with an explicit error
 
 ---
 
@@ -102,6 +116,11 @@ If questions are unanswered:
 
 - incorrectly answered questions
 - unanswered questions
+
+Unanswered state means:
+
+- there is no row in `public.answers` for that attempt-question pair
+- agents must not create placeholder answer rows for unanswered questions
 
 ---
 
@@ -217,9 +236,8 @@ Core entities:
 users (Supabase auth)
 exams
 questions
-question_options
 attempts
-attempt_answers
+public.answers (product term: attempt_answers)
 
 Recommended support table:
 
@@ -230,6 +248,13 @@ Purpose:
 - persist question order
 - support custom exams
 - avoid relying only on exam_id
+
+Current schema notes:
+
+- answer options are stored inline on `questions`
+- there is no confirmed `question_options` table today
+- `attempt_questions` is the source of truth for attempt composition and order
+- unanswered questions are represented by missing rows in `public.answers`
 
 ---
 
@@ -243,6 +268,11 @@ Never expose:
 - secrets
 
 Use server-side operations for sensitive actions.
+
+Finished-attempt integrity:
+
+- once an attempt is finished, answers must become immutable
+- agents should prefer database-backed protection in addition to UI behavior
 
 ---
 
@@ -283,6 +313,12 @@ TypeScript:
 - avoid any
 - prefer strong typing
 - reuse domain types
+- prefer generated Supabase schema types over manual casting when possible
+
+Current typing note:
+
+- TypeScript `strict` is already enabled in this repository
+- remaining type-safety work should focus on generated Supabase types, shared domain types, and removal of unsafe casts
 
 Next.js:
 
