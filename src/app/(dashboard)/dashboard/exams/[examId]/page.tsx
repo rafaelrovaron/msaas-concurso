@@ -95,8 +95,8 @@ export default async function ExamDetailPage({
               {exam.concurso}
             </h1>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-600 sm:text-base">
-              Esta tentativa preserva a ordem da prova e remove filtros por disciplina para manter
-              a experiencia o mais fiel possivel ao exame original.
+              Esta tentativa preserva a ordem registrada para o seu estudo e remove filtros por
+              disciplina para manter o fluxo de prova completa.
             </p>
 
             <div className="mt-6 flex flex-wrap gap-3 text-sm text-slate-600">
@@ -129,12 +129,12 @@ export default async function ExamDetailPage({
       <section className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
         <div className="rounded-[1.75rem] border border-white/70 bg-white/80 p-6 shadow-lg shadow-slate-200/30">
           <h2 className="text-xl font-semibold text-slate-950">O que esperar desta tentativa</h2>
-          <div className="mt-5 space-y-3">
-            {[
-              'A ordem das questoes fica persistida para a tentativa.',
-              'Voce pode revisar pendencias antes de finalizar.',
-              'Questoes nao respondidas entram como incorretas no resultado final.',
-            ].map((item) => (
+            <div className="mt-5 space-y-3">
+              {[
+                'A ordem das questões fica persistida para a tentativa.',
+                'Você pode revisar pendências antes de finalizar.',
+                'Questões não respondidas entram como incorretas no resultado final.',
+              ].map((item) => (
               <div
                 key={item}
                 className="rounded-2xl border border-slate-200/80 bg-slate-50/80 px-4 py-4 text-sm leading-6 text-slate-700"

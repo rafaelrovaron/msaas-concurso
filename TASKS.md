@@ -83,12 +83,12 @@ Goal:
 
 Tasks:
 
-- [ ] Add `typecheck` script to `package.json`
-- [ ] Generate Supabase types from the current schema
-- [ ] Wire typed Supabase clients into app code
-- [ ] Remove `as unknown as` casts where generated types can replace them
-- [ ] Consolidate repeated attempt/question/answer types into shared domain types
-- [ ] Reduce relation-normalization duplication where safe
+ - [x] Add `typecheck` script to `package.json`
+ - [x] Generate Supabase types from the current schema
+ - [x] Wire typed Supabase clients into app code
+ - [x] Remove `as unknown as` casts where generated types can replace them
+ - [ ] Consolidate repeated attempt/question/answer types into shared domain types
+ - [ ] Reduce relation-normalization duplication where safe
 
 Current note:
 
@@ -104,10 +104,10 @@ Goal:
 
 Tasks:
 
-- [ ] Fix current lint warnings in `CustomExamForm`
-- [ ] Run lint with zero warnings if feasible
-- [ ] Keep `npm run build` passing
-- [ ] Document expected local validation steps in `README.md`
+ - [x] Fix current lint warnings in `CustomExamForm`
+ - [x] Run lint with zero warnings if feasible
+ - [x] Keep `npm run build` passing
+ - [ ] Document expected local validation steps in `README.md`
 
 ---
 
@@ -120,13 +120,56 @@ Goal:
 Tasks:
 
 - [ ] Define and implement real full-exam ordering semantics
-- [ ] Stop implying faithful original exam order unless the data model supports it
-- [ ] Decide how custom exam generation should behave when available questions are fewer than requested
-- [ ] Improve user feedback for partial custom exam generation if that behavior remains allowed
+ - [x] Stop implying faithful original exam order unless the data model supports it
+ - [x] Decide how custom exam generation should behave when available questions are fewer than requested
+ - [x] Improve user feedback for partial custom exam generation if that behavior remains allowed
 
 ---
 
-## 7. Priority 6 - Study Experience Improvements
+## 7. Priority 6 - Question Bank And Admin Import
+
+Goal:
+
+- build the operational foundation for scaling real exam content through admin workflows and assisted import, without weakening review and publication controls
+
+Tasks:
+
+- [ ] Define admin role behavior and access boundaries
+- [ ] Create protected admin area for authorized users
+- [ ] Create admin question listing
+- [ ] Create manual question creation flow
+- [ ] Create question editing flow
+- [ ] Create question removal or deactivation flow
+- [ ] Define publication status model for imported/manual questions
+- [ ] Prevent non-published questions from being shown to users
+- [ ] Create PDF upload flow for previous exams
+- [ ] Create import record tracking and processing status
+- [ ] Track source exam/PDF provenance for imported questions
+- [ ] Design extraction flow for question statement, alternatives, and answer key
+- [ ] Add admin review flow for imported questions before publication
+- [ ] Add admin correction flow for extracted answer keys and categorization
+- [ ] Support exam board categorization in admin workflows
+- [ ] Support subject categorization in admin workflows
+- [ ] Support topic categorization in admin workflows
+- [ ] Evaluate AI-assisted extraction and categorization with mandatory human review
+- [ ] Avoid assuming every question uses the same option format
+- [ ] Plan user-facing filter expansion by exam board, subject, and topic after publication flow is stable
+
+Important:
+
+- use real previous exams as the primary source of content
+- do not prioritize AI-generated brand-new questions
+- do not publish imported content without human review
+- inspect real schema and RLS before proposing data-model changes
+
+Sequencing note:
+
+- begin implementation only after the current core study-loop blockers are at an acceptable level
+- if execution starts earlier, phase work so publication safeguards and access control land before broad admin tooling
+
+---
+
+## 8. Priority 7 - Study Experience Improvements
 
 Goal:
 
@@ -146,7 +189,7 @@ Note:
 
 ---
 
-## 8. Priority 7 - Testing And CI
+## 9. Priority 8 - Testing And CI
 
 Goal:
 
@@ -154,17 +197,17 @@ Goal:
 
 Tasks:
 
-- [ ] Setup Playwright
-- [ ] Add E2E test for full exam attempt creation
-- [ ] Add E2E test for custom exam generation
-- [ ] Add E2E test for answer saving
-- [ ] Add E2E test for finish confirmation with unanswered questions
-- [ ] Add E2E test for review filter including unanswered questions
-- [ ] Add CI pipeline for lint, typecheck, build, and critical E2E coverage
+ - [x] Setup Playwright
+ - [x] Add E2E test for full exam attempt creation
+ - [x] Add E2E test for custom exam generation
+ - [ ] Add E2E test for answer saving
+ - [x] Add E2E test for finish confirmation with unanswered questions
+ - [x] Add E2E test for review filter including unanswered questions
+ - [ ] Add CI pipeline for lint, typecheck, build, and critical E2E coverage
 
 ---
 
-## 9. Priority 8 - Analytics
+## 10. Priority 9 - Analytics
 
 Goal:
 
@@ -181,23 +224,23 @@ Tasks:
 
 ---
 
-## 10. Priority 9 - Content Scaling
+## 11. Priority 10 - Content Scaling
 
 Goal:
 
-- support operational growth later without disrupting the MVP
+- scale operational throughput after the first admin/import foundation is working
 
 Tasks:
 
-- [ ] Define admin role behavior
-- [ ] Build admin panel
-- [ ] Add CRUD for exams
-- [ ] Add CRUD for questions
-- [ ] Add content import system
+- [ ] Improve bulk review workflows for imported questions
+- [ ] Add batch publish/reject actions
+- [ ] Add admin productivity tooling for large imports
+- [ ] Improve import quality monitoring and recovery flows
+- [ ] Expand supported source formats beyond the initial PDF flow
 
 ---
 
-## 11. Priority 10 - Monetization
+## 12. Priority 11 - Monetization
 
 Future only.
 
@@ -211,23 +254,23 @@ Do not implement unless explicitly requested.
 
 ---
 
-## 12. Current Active Queue
+## 13. Current Active Queue
 
 Execute these next unless priorities change:
 
-- [ ] Add `typecheck` script
-- [ ] Generate Supabase types
-- [ ] Fix current lint warnings
+ - [x] Add `typecheck` script
+ - [x] Generate Supabase types
+ - [x] Fix current lint warnings
 
 ---
 
-## 13. Validation Checklist
+## 14. Validation Checklist
 
 Before closing a task batch:
 
 - [ ] docs are still aligned
-- [ ] lint passes
-- [ ] build passes
-- [ ] typecheck passes when added
+ - [x] lint passes
+ - [x] build passes
+ - [x] typecheck passes when added
 - [ ] security assumptions were not weakened
 - [ ] core attempt flows still work end-to-end

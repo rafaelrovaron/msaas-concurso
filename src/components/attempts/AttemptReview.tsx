@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import type { AnswerOption } from '@/lib/attempts'
 
 type Question = {
   id: string
@@ -10,14 +11,14 @@ type Question = {
   alternativa_c: string
   alternativa_d: string
   alternativa_e: string
-  correta: 'A' | 'B' | 'C' | 'D' | 'E'
+  correta: AnswerOption
   discipline: string | null
   topic: string | null
 }
 
 type Answer = {
   question_id: string
-  resposta: 'A' | 'B' | 'C' | 'D' | 'E'
+  resposta: AnswerOption
   correta: boolean | null
 }
 
@@ -63,7 +64,7 @@ export default function AttemptReview({
   }, [questions, answerMap, onlyWrong, disciplineFilter, discipline])
 
   const renderAlternative = (
-    label: 'A' | 'B' | 'C' | 'D' | 'E',
+    label: AnswerOption,
     text: string,
     chosen?: string,
     correct?: string
@@ -125,7 +126,10 @@ export default function AttemptReview({
           const correct = question.correta
 
           return (
-            <div key={question.id} className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+            <div
+              key={question.id}
+              className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm"
+            >
               <div className="text-xs text-gray-500">
                 {discipline ?? question.discipline ?? 'Sem disciplina'} • Questão {index + 1}/
                 {filtered.length}
@@ -144,8 +148,7 @@ export default function AttemptReview({
 
               <div className="mt-4 text-sm">
                 <div className="text-gray-700">
-                  Sua resposta:{' '}
-                  <span className="font-medium">{chosen ?? '— (não respondida)'}</span>
+                  Sua resposta: <span className="font-medium">{chosen ?? '— (não respondida)'}</span>
                 </div>
                 <div className="text-gray-700">
                   Correta: <span className="font-medium">{correct}</span>

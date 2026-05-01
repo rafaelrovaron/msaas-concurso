@@ -6,7 +6,7 @@ export const customExamSchema = z.object({
   banca: z.string().optional(),
   year: z.string().optional(),
   questionCount: z.enum(['10', '20', '30', '40'], {
-    error: 'Selecione uma quantidade valida de questoes.',
+    error: 'Selecione uma quantidade válida de questões.',
   }),
 })
 

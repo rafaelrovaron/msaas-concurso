@@ -1,14 +1,7 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { ATTEMPT_PASS_PERCENTAGE, getAttemptSummary } from '@/lib/attempts'
+import { ATTEMPT_PASS_PERCENTAGE, getAttemptSummary, type AttemptFilters } from '@/lib/attempts'
 import { createClient } from '@/lib/supabase/server'
-
-type AttemptFilters = {
-  discipline?: string | null
-  topic?: string | null
-  banca?: string | null
-  year?: number | null
-}
 
 function buildAttemptTitle({
   mode,

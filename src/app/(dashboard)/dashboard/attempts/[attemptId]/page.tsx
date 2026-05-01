@@ -1,16 +1,10 @@
-import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import AttemptRunner from '@/components/attempts/AttemptRunner'
-import { loadAttemptQuestions } from '@/lib/attempts'
+import { loadAttemptQuestions, type AnswerOption, type AttemptFilters } from '@/lib/attempts'
 import { createClient } from '@/lib/supabase/server'
 
-type AttemptFilters = {
-  discipline?: string | null
-  topic?: string | null
-  banca?: string | null
-  year?: number | null
-  questionCount?: number | null
-}
+const ANSWER_OPTIONS = new Set<AnswerOption>(['A', 'B', 'C', 'D', 'E'])
 
 function buildAttemptTitle({
   mode,
@@ -106,6 +100,11 @@ export default async function AttemptPage({
     .from('answers')
     .select('question_id, resposta')
     .eq('attempt_id', attemptId)
+  const initialAnswers = (answers ?? []).flatMap((answer) =>
+    ANSWER_OPTIONS.has(answer.resposta as AnswerOption)
+      ? [{ question_id: answer.question_id, resposta: answer.resposta as AnswerOption }]
+      : []
+  )
 
   const currentIndex = Math.max(1, Number(q ?? '1') || 1)
 
@@ -119,7 +118,7 @@ export default async function AttemptPage({
         discipline={attempt.discipline}
         filters={(attempt.filters ?? {}) as AttemptFilters}
         questions={questions}
-        initialAnswers={answers ?? []}
+        initialAnswers={initialAnswers}
         initialIndex={currentIndex}
       />
     </div>

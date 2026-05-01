@@ -1,5 +1,6 @@
 'use server'
 
+import { startCustomAttempt, type CustomAttemptInput, type StartCustomAttemptResult } from '@/lib/attempts'
 import { createClient } from '@/lib/supabase/server'
 
 type SaveAnswerInput = {
@@ -22,7 +23,7 @@ export async function saveAttemptAnswer({
   } = await supabase.auth.getUser()
 
   if (!user) {
-    return { error: 'Sessao expirada. Faca login novamente.' }
+    return { error: 'Sessão expirada. Faça login novamente.' }
   }
 
   const { data: attempt, error: attemptError } = await supabase
@@ -32,12 +33,12 @@ export async function saveAttemptAnswer({
     .maybeSingle()
 
   if (attemptError || !attempt || attempt.user_id !== user.id) {
-    return { error: 'Tentativa nao encontrada.' }
+    return { error: 'Tentativa não encontrada.' }
   }
 
   if (attempt.finished_at) {
     return {
-      error: 'Esta tentativa ja foi finalizada.',
+      error: 'Esta tentativa já foi finalizada.',
       finished: true,
     }
   }
@@ -50,7 +51,7 @@ export async function saveAttemptAnswer({
     .maybeSingle()
 
   if (attemptQuestionError || !attemptQuestion) {
-    return { error: 'Questao nao pertence a esta tentativa.' }
+    return { error: 'Questão não pertence a esta tentativa.' }
   }
 
   const { error: saveError } = await supabase
@@ -66,14 +67,12 @@ export async function saveAttemptAnswer({
     )
 
   if (saveError) {
+    const normalizedMessage = saveError.message.toLowerCase()
     const isFinishedWriteBlock =
-      saveError.message.toLowerCase().includes('finalizada') ||
-      saveError.message.toLowerCase().includes('finished')
+      normalizedMessage.includes('finalizada') || normalizedMessage.includes('finished')
 
     return {
-      error: isFinishedWriteBlock
-        ? 'Esta tentativa ja foi finalizada.'
-        : saveError.message,
+      error: isFinishedWriteBlock ? 'Esta tentativa já foi finalizada.' : saveError.message,
       finished: isFinishedWriteBlock,
     }
   }
@@ -115,8 +114,41 @@ export async function finishAttempt(attemptId: string) {
   }
 
   if (!finished) {
-    return { error: 'Nao foi possivel finalizar a tentativa.' }
+    return { error: 'Não foi possível finalizar a tentativa.' }
   }
 
   return { ok: true }
+}
+
+export async function startCustomAttemptAction(
+  input: CustomAttemptInput
+): Promise<StartCustomAttemptResult> {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return {
+      message: 'Sessão expirada. Faça login novamente.',
+      status: 'error',
+    }
+  }
+
+  try {
+    return await startCustomAttempt({
+      ...input,
+      supabase,
+      userId: user.id,
+    })
+  } catch (error) {
+    return {
+      message:
+        error instanceof Error
+          ? error.message
+          : 'Não foi possível gerar a prova personalizada.',
+      status: 'error',
+    }
+  }
 }

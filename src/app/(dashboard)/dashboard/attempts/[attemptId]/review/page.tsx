@@ -1,8 +1,10 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import AttemptReview from '@/components/attempts/AttemptReview'
-import { loadAttemptQuestions } from '@/lib/attempts'
+import { loadAttemptQuestions, type AnswerOption } from '@/lib/attempts'
 import { createClient } from '@/lib/supabase/server'
+
+const ANSWER_OPTIONS = new Set<AnswerOption>(['A', 'B', 'C', 'D', 'E'])
 
 function buildAttemptTitle({
   mode,
@@ -76,6 +78,17 @@ export default async function AttemptReviewPage({
     .from('answers')
     .select('question_id, resposta, correta')
     .eq('attempt_id', attemptId)
+  const reviewAnswers = (answers ?? []).flatMap((answer) =>
+    ANSWER_OPTIONS.has(answer.resposta as AnswerOption)
+      ? [
+          {
+            correta: answer.correta,
+            question_id: answer.question_id,
+            resposta: answer.resposta as AnswerOption,
+          },
+        ]
+      : []
+  )
 
   return (
     <div className="p-8">
@@ -95,7 +108,7 @@ export default async function AttemptReviewPage({
         <AttemptReview
           discipline={attempt.discipline}
           questions={questions}
-          answers={answers ?? []}
+          answers={reviewAnswers}
         />
       </div>
     </div>
