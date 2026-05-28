@@ -48,6 +48,8 @@ src/components   UI and feature components
 src/lib          business logic, validations, utilities
 src/lib/supabase Supabase clients
 supabase         migrations and seeds
+e2e              Playwright flows
+.github          CI workflow
 ```
 
 ## Local Development
@@ -56,6 +58,13 @@ Install dependencies:
 
 ```bash
 npm install
+```
+
+Create a local `.env.local` with the public Supabase browser/server values:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 ```
 
 Run the app:
@@ -76,6 +85,9 @@ http://localhost:3000
 npm run dev
 npm run build
 npm run lint
+npm run typecheck
+npm run test:e2e
+npm run test:e2e:headed
 ```
 
 ## Validation
@@ -84,14 +96,16 @@ Current local validation baseline:
 
 ```bash
 npm run lint
+npm run typecheck
 npm run build
 ```
 
 Notes:
 
-- `npm run build` is currently passing
-- `npm run lint` currently reports warnings that are tracked in `TASKS.md`
-- a dedicated `typecheck` script is still pending
+- `npm run lint` is expected to pass with zero warnings.
+- `npm run typecheck` runs Next route type generation and strict TypeScript checking.
+- `npm run build` requires `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` because dashboard routes create typed Supabase SSR clients during prerendering.
+- `npm run test:e2e` requires the same Supabase env vars and runs authenticated flows only when `E2E_TEST_EMAIL` and `E2E_TEST_PASSWORD` are set.
 
 ## Documentation
 
@@ -113,14 +127,16 @@ Current confirmed schema notes:
 - `orgao` is not confirmed in the current schema
 - `cargo` is a future schema item and should not be assumed in current implementation
 - question options are stored inline on `questions`
+- `questions.exam_position` is the intended full-exam ordering field going forward
 - unanswered questions are represented by missing rows in `public.answers`
 - `attempt_questions` is the source of truth for attempt composition and order
+- `public.answers` has one row per answered attempt-question pair
 
 ## Current Priorities
 
 The next priorities are:
 
-1. harden attempt data integrity
-2. validate RLS and ownership rules
-3. generate typed Supabase clients
-4. improve test coverage for the core study loop
+1. apply and verify the latest Supabase integrity/RLS migrations
+2. confirm production data has valid `questions.exam_position` values for real imported exams
+3. keep CI green for lint, typecheck, build, and critical Playwright coverage
+4. continue UX improvements only after the core study loop remains protected

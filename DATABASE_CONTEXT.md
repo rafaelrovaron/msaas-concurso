@@ -90,6 +90,7 @@ Confirmed columns:
 - `correta bpchar`
 - `discipline text`
 - `topic text`
+- `exam_position integer`
 
 Relationships:
 
@@ -100,6 +101,7 @@ Important observations:
 - options are stored inline on the question row
 - there is no confirmed `question_options` table
 - `topic` now exists and can support custom-exam filtering
+- `exam_position` is the intended source-exam ordering field for full-exam attempts
 
 ---
 
@@ -160,6 +162,10 @@ Constraints:
 - unique `(attempt_id, position)`
 - `position > 0`
 
+Integrity:
+
+- writes are blocked after the parent attempt is finished
+
 RLS:
 
 - enabled
@@ -188,11 +194,22 @@ Relationships:
 
 - `attempt_id -> public.attempts.id`
 - `question_id -> public.questions.id`
+- composite `(attempt_id, question_id) -> public.attempt_questions(attempt_id, question_id)`
+
+Constraints:
+
+- unique `(attempt_id, question_id)`
+
+RLS:
+
+- enabled
+- authenticated users can read/insert/update answer rows only for their own unfinished attempts
 
 Important observations:
 
 - there is no `answered_at` column
 - unanswered state still means no answer row exists for that attempt-question pair
+- answer writes are blocked after finish by database trigger
 
 ---
 
@@ -216,9 +233,9 @@ RLS:
 
 - enabled
 
-Important observation:
+Visible policy pattern:
 
-- Supabase advisors still report RLS enabled without visible policies
+- authenticated users can read and update their own profile
 
 ---
 
@@ -230,6 +247,7 @@ Important observation:
 - `attempt_questions.question_id -> questions.id`
 - `answers.attempt_id -> attempts.id`
 - `answers.question_id -> questions.id`
+- `answers(attempt_id, question_id) -> attempt_questions(attempt_id, question_id)`
 - `profiles.id -> auth.users.id`
 
 Practical meaning:
@@ -247,9 +265,10 @@ Practical meaning:
 The schema now supports the intended creation flow:
 
 1. select questions server-side
-2. create the attempt row
-3. insert ordered `attempt_questions`
-4. redirect to the runner
+2. for full exams, order questions by `questions.exam_position`
+3. create the attempt row
+4. insert ordered `attempt_questions`
+5. redirect to the runner
 
 ## Finish flow
 
@@ -258,6 +277,7 @@ The schema now supports reliable unanswered detection because:
 - total expected questions come from `attempt_questions`
 - answered questions come from `answers`
 - unanswered questions are still represented by missing answer rows
+- finishing is idempotent: a finished attempt returns success without recomputing
 
 ## Review flow
 
@@ -279,19 +299,21 @@ The schema now supports:
 
 # Current security and performance notes
 
-Security advisors still report:
+Before the latest local hardening migrations, security advisors reported:
 
 - `public.profiles` with RLS enabled and no visible policy
 - `public.handle_new_user` with mutable `search_path`
 - leaked password protection disabled in Supabase Auth
 
-Performance advisors still report:
+After applying migrations, rerun Supabase advisors because the profile-policy warning should be resolved by the own-profile policies. Auth-level warnings still require Supabase project configuration.
+
+Performance advisors previously reported:
 
 - duplicate permissive policies on `attempts`, `answers`, `exams`, and `questions`
 - multiple RLS policies that should use `(select auth.uid())` style init plans
 - several indexes not yet used, which is expected immediately after creation on an empty database
 
-These are confirmed observations and should not be ignored in future hardening work.
+These observations should be rechecked after deployment and should not be ignored in future hardening work.
 
 ---
 
@@ -304,3 +326,14 @@ When working in this repository:
 - do not assume `orgao` or `cargo` exist in the current schema
 - do not assume `public.answers` stores unanswered placeholders
 - preserve RLS expectations that users only access their own attempts, answers, and attempt-question mappings
+
+
+## Operational validation notes
+
+After applying migrations to a Supabase project, verify:
+
+- RLS policies still restrict `attempts`, `answers`, and `attempt_questions` to the authenticated owner
+- `profiles` no longer appears as RLS-enabled without an own-profile policy
+- duplicate calls to `finish_attempt` return success without creating placeholder answers
+- attempts cannot receive new `answers` or `attempt_questions` rows after `finished_at` is set
+- imported real exams populate `questions.exam_position` with the real exam order

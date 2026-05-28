@@ -693,6 +693,15 @@ question_bank as (
     discipline,
     topic
   )
+),
+numbered_question_bank as (
+  select
+    q.*,
+    row_number() over (
+      partition by q.concurso, q.banca, q.ano
+      order by q.enunciado
+    )::integer as exam_position
+  from question_bank q
 )
 insert into public.questions (
   exam_id,
@@ -704,7 +713,8 @@ insert into public.questions (
   alternativa_e,
   correta,
   discipline,
-  topic
+  topic,
+  exam_position
 )
 select
   e.id,
@@ -716,8 +726,9 @@ select
   q.alternativa_e,
   q.correta,
   q.discipline,
-  q.topic
-from question_bank q
+  q.topic,
+  q.exam_position
+from numbered_question_bank q
 join target_exams e
   on e.concurso = q.concurso
  and e.banca = q.banca

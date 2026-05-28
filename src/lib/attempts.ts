@@ -1,34 +1,10 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/lib/supabase/database.types'
+import type { AttemptFilters, AttemptMode, AttemptQuestion, AttemptSummary } from '@/lib/types'
 
 export const ATTEMPT_PASS_PERCENTAGE = 70
 
-export type AttemptMode = 'full_exam' | 'custom'
-export type AnswerOption = 'A' | 'B' | 'C' | 'D' | 'E'
-
-export type AttemptFilters = {
-  availableQuestionCount?: number | null
-  banca?: string | null
-  discipline?: string | null
-  examId?: string | null
-  questionCount?: number | null
-  requestedQuestionCount?: number | null
-  topic?: string | null
-  year?: number | null
-}
-
-export type AttemptQuestion = {
-  id: string
-  enunciado: string
-  alternativa_a: string
-  alternativa_b: string
-  alternativa_c: string
-  alternativa_d: string
-  alternativa_e: string
-  correta: AnswerOption
-  discipline: string | null
-  topic: string | null
-}
+export type { AnswerOption, AttemptFilters, AttemptMode, AttemptQuestion } from '@/lib/types'
 
 type CreateAttemptParams = {
   supabase: SupabaseClient<Database>
@@ -42,15 +18,6 @@ type CreateAttemptParams = {
 
 type CreateAttemptResult = {
   id: string
-}
-
-type AttemptSummary = {
-  total: number
-  answered: number
-  correct: number
-  unanswered: number
-  percent: number
-  passed: boolean | null
 }
 
 export type CustomAttemptInput = {
@@ -78,7 +45,7 @@ export type StartCustomAttemptResult =
     }
 
 const ATTEMPT_QUESTION_SELECT =
-  'id, enunciado, alternativa_a, alternativa_b, alternativa_c, alternativa_d, alternativa_e, correta, discipline, topic'
+  'id, enunciado, alternativa_a, alternativa_b, alternativa_c, alternativa_d, alternativa_e, correta, discipline, topic, exam_position'
 
 function shuffle<T>(items: T[]) {
   const next = [...items]
@@ -136,7 +103,7 @@ export async function createFullExamAttempt({
     .from('questions')
     .select('id')
     .eq('exam_id', examId)
-    .order('id', { ascending: true })
+    .order('exam_position', { ascending: true })
 
   if (questionsError) {
     throw new Error(questionsError.message)

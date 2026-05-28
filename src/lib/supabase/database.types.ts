@@ -152,6 +152,7 @@ export type Database = {
           discipline: string | null
           enunciado: string
           exam_id: string
+          exam_position: number
           id: string
           topic: string | null
         }
@@ -165,6 +166,7 @@ export type Database = {
           discipline?: string | null
           enunciado: string
           exam_id: string
+          exam_position: number
           id?: string
           topic?: string | null
         }
@@ -178,6 +180,7 @@ export type Database = {
           discipline?: string | null
           enunciado?: string
           exam_id?: string
+          exam_position?: number
           id?: string
           topic?: string | null
         }
