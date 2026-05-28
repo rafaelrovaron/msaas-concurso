@@ -71,13 +71,14 @@ Users select a real exam and solve its full question set.
 Current intended behavior:
 
 - create an `attempt`
+- order source questions by `questions.exam_position`
 - persist question order in `attempt_questions`
 - redirect to the runner
 - do not filter by discipline before starting
 
 Important schema note:
 
-- `banca` and `ano` are confirmed today
+- `banca`, `ano`, and `questions.exam_position` are supported today
 - `orgao` and `cargo` are not confirmed in the current schema and must not drive implementation until added to Supabase
 
 ### Custom exam mode
@@ -155,14 +156,10 @@ Progress tracking exists in the app today, but is still basic and should be trea
 
 ### Partially complete or risky
 
-- [ ] Full exam order fidelity is not guaranteed yet
-- [ ] Attempt creation is not atomic
-- [ ] Post-finish answer immutability is not guaranteed yet
-- [ ] Duplicate finish protection needs hardening at the data layer
-- [ ] Supabase clients are not fully typed from generated schema
-- [ ] Some domain typing is duplicated or normalized manually
-- [ ] README is still template content
-- [ ] Playwright coverage is not in place
+- [ ] Existing legacy exam data may still need real `questions.exam_position` values
+- [ ] RLS and ownership rules need verification against the deployed Supabase project
+- [ ] Some relation-normalization code can still be simplified
+- [ ] CI must be kept configured with Supabase and E2E secrets
 
 ### Not started
 
@@ -224,7 +221,7 @@ Goal:
 
 Priority items:
 
-- guarantee full exam ordering semantics
+- keep full exam ordering semantics backed by `questions.exam_position`
 - improve exam detail clarity
 - improve custom exam feedback when available questions are below requested count
 - strengthen attempt resume and runner usability
@@ -238,13 +235,12 @@ Goal:
 
 Priority items:
 
-- add Playwright
-- cover attempt creation
-- cover answer saving
-- cover finish confirmation
-- cover review filtering
-- cover custom exam generation
-- add CI checks
+- maintain Playwright coverage for attempt creation
+- maintain Playwright coverage for answer saving
+- maintain Playwright coverage for finish confirmation
+- maintain Playwright coverage for review filtering
+- maintain Playwright coverage for custom exam generation
+- keep CI checks for lint, typecheck, build, and E2E
 
 ### Phase 5 - Analytics
 

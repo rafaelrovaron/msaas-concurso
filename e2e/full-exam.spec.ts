@@ -24,6 +24,23 @@ test.describe('full exam flow', () => {
     await expect(page.getByText('Não respondidas:')).toBeVisible()
   })
 
+  test('saves an answer and keeps it when navigating away and back', async ({ page }) => {
+    await page.goto('/dashboard/exams')
+    await page.getByRole('link', { name: 'Ver prova' }).first().click()
+    await page.getByRole('button', { name: 'Iniciar prova completa' }).click()
+
+    await expect(page).toHaveURL(/\/dashboard\/attempts\/.+/)
+    await page.getByRole('radio').first().check()
+    await page.getByRole('button', { name: 'Salvar resposta' }).click()
+
+    await expect(page.getByText('Resposta salva.')).toBeVisible()
+    await page.getByRole('button', { name: 'Proxima' }).click()
+    await expect(page.getByRole('heading', { name: /Questao 2 de/ })).toBeVisible()
+    await page.getByRole('button', { name: 'Anterior' }).click()
+
+    await expect(page.getByRole('radio').first()).toBeChecked()
+  })
+
   test('review keeps unanswered questions in only-wrong mode', async ({ page }) => {
     await page.goto('/dashboard/exams')
     await page.getByRole('link', { name: 'Ver prova' }).first().click()
