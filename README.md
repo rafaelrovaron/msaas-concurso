@@ -105,7 +105,51 @@ Notes:
 - `npm run lint` is expected to pass with zero warnings.
 - `npm run typecheck` runs Next route type generation and strict TypeScript checking.
 - `npm run build` requires `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` because dashboard routes create typed Supabase SSR clients during prerendering.
-- `npm run test:e2e` requires the same Supabase env vars and runs authenticated flows only when `E2E_TEST_EMAIL` and `E2E_TEST_PASSWORD` are set.
+- `npm run test:e2e` requires the same Supabase env vars and runs authenticated flows only when `E2E_TEST_EMAIL`/`E2E_TEST_EMAIL_TEMPLATE` and `E2E_TEST_PASSWORD` are set.
+
+## E2E Test Safety
+
+Playwright tests must be deterministic and must never write to production data.
+
+Required environment rules:
+
+```bash
+# Must point to a disposable local, preview, staging, or test Supabase project.
+# Never point E2E runs at the production Supabase project.
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+
+# Enables the authenticated cleanup endpoint while the Playwright web server runs.
+# The Playwright config sets this automatically for `npm run test:e2e`.
+E2E_TEST_MODE=true
+
+# Use a synthetic account only. Do not use an account that belongs to a real user.
+# Accepted examples include e2e+worker0@example.test or e2e.worker0@example.com.
+E2E_TEST_EMAIL=e2e+local@example.test
+E2E_TEST_PASSWORD=...
+```
+
+For parallel worker isolation, prefer pre-created synthetic accounts and set a template instead of a single email:
+
+```bash
+E2E_TEST_EMAIL_TEMPLATE=e2e+worker{worker}@example.test
+E2E_TEST_PASSWORD=...
+```
+
+When `E2E_TEST_EMAIL_TEMPLATE` is not set, Playwright runs with one worker so specs that share the same user cannot race each other. Every E2E email is validated by the test helper and cleanup endpoint; real personal, staging customer, or production user emails are rejected. Tests that create attempts register their attempt IDs and call the test-only cleanup route after each test. The route is disabled unless `E2E_TEST_MODE=true`, requires an authenticated synthetic E2E user, and deletes only attempts owned by that user.
+
+
+### GitHub Actions E2E secrets
+
+The dedicated `.github/workflows/e2e.yml` workflow runs Playwright on pushes, pull requests, and manual dispatches. Configure these repository secrets before enabling it:
+
+- `NEXT_PUBLIC_SUPABASE_URL`: non-production Supabase project URL.
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: anon key for the same non-production Supabase project.
+- `E2E_TEST_PASSWORD`: password for the synthetic E2E account or accounts.
+- `E2E_TEST_EMAIL`: single synthetic E2E account email, for serialized runs.
+- `E2E_TEST_EMAIL_TEMPLATE`: optional per-worker account template such as `e2e+worker{worker}@example.test`. Use this instead of `E2E_TEST_EMAIL` when you want worker-level account isolation.
+
+At least one of `E2E_TEST_EMAIL` or `E2E_TEST_EMAIL_TEMPLATE` must be configured. The workflow validates missing secrets before installing dependencies so CI fails with an explicit configuration error instead of a confusing browser-test failure.
 
 ## Documentation
 
