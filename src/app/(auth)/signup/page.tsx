@@ -62,7 +62,7 @@ export default function SignupPage() {
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">E-mail</Label>
           <Input id="email" type="email" placeholder="seu@email.com" {...register('email')} />
           {errors.email && <p className="text-sm text-red-600">{errors.email.message}</p>}
         </div>
@@ -91,7 +91,7 @@ export default function SignupPage() {
         </Button>
 
         <div className="pt-4 text-center text-sm text-gray-500">
-          Ja tem conta?{' '}
+          Já tem conta?{' '}
           <Link href="/login" className="text-blue-600 hover:underline">
             Entrar
           </Link>

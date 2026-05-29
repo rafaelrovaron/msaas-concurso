@@ -36,16 +36,16 @@ export default function ResetPasswordPage() {
       return
     }
 
-    setMessage('Email de redefinicao enviado!')
+    setMessage('E-mail de redefinição enviado!')
   }
 
   return (
-    <AuthLayout title="Redefinir senha" subtitle="Enviaremos um link para seu email">
+    <AuthLayout title="Redefinir senha" subtitle="Enviaremos um link para seu e-mail">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
         {message && <div className="rounded-lg bg-green-50 p-3 text-sm text-green-700">{message}</div>}
 
         <div className="space-y-1.5">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">E-mail</Label>
           <Input id="email" type="email" placeholder="seu@email.com" {...register('email')} />
           {errors.email && <p className="text-sm text-red-600">{errors.email.message}</p>}
         </div>
