@@ -7,14 +7,12 @@ type SaveAnswerInput = {
   attemptId: string
   questionId: string
   resposta: 'A' | 'B' | 'C' | 'D' | 'E'
-  correta: boolean
 }
 
 export async function saveAttemptAnswer({
   attemptId,
   questionId,
   resposta,
-  correta,
 }: SaveAnswerInput) {
   const supabase = await createClient()
 
@@ -53,6 +51,18 @@ export async function saveAttemptAnswer({
   if (attemptQuestionError || !attemptQuestion) {
     return { error: 'Questão não pertence a esta tentativa.' }
   }
+
+  const { data: question, error: questionError } = await supabase
+    .from('questions')
+    .select('correta')
+    .eq('id', questionId)
+    .maybeSingle()
+
+  if (questionError || !question) {
+    return { error: 'Questão não encontrada.' }
+  }
+
+  const correta = resposta === question.correta
 
   const { error: saveError } = await supabase
     .from('answers')
