@@ -1,5 +1,49 @@
-import { expect, test } from '@playwright/test'
+import { expect, test, type APIRequestContext, type Page } from '@playwright/test'
 import { hasE2ECredentials, login } from './auth'
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+const hasSupabaseRestCredentials = Boolean(supabaseUrl && supabaseAnonKey)
+
+type AnswerOption = 'A' | 'B' | 'C' | 'D' | 'E'
+
+async function getSupabaseAccessToken(page: Page) {
+  return page.evaluate(() => {
+    for (let storageIndex = 0; storageIndex < window.localStorage.length; storageIndex += 1) {
+      const key = window.localStorage.key(storageIndex)
+
+      if (!key?.startsWith('sb-') || !key.endsWith('-auth-token')) continue
+
+      const value = window.localStorage.getItem(key)
+      if (!value) continue
+
+      const parsed = JSON.parse(value) as { access_token?: string }
+      if (parsed.access_token) return parsed.access_token
+    }
+
+    return null
+  })
+}
+
+function restHeaders(accessToken: string) {
+  return {
+    apikey: supabaseAnonKey!,
+    Authorization: `Bearer ${accessToken}`,
+  }
+}
+
+async function getJson<T>(request: APIRequestContext, path: string, accessToken: string) {
+  const response = await request.get(`${supabaseUrl}/rest/v1/${path}`, {
+    headers: restHeaders(accessToken),
+  })
+
+  expect(response.ok()).toBeTruthy()
+  return (await response.json()) as T
+}
+
+function wrongAnswerFor(correctAnswer: AnswerOption): AnswerOption {
+  return correctAnswer === 'A' ? 'B' : 'A'
+}
 
 test.describe('full exam flow', () => {
   test.beforeEach(async ({ page }) => {
@@ -39,6 +83,77 @@ test.describe('full exam flow', () => {
     await page.getByRole('button', { name: 'Anterior' }).click()
 
     await expect(page.getByRole('radio').first()).toBeChecked()
+  })
+
+  test('derives correctness when direct REST payload lies with correta=true', async ({ page, request }) => {
+    test.skip(
+      !hasSupabaseRestCredentials,
+      'Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to run Supabase REST checks.'
+    )
+
+    await page.goto('/dashboard/exams')
+    await page.getByRole('link', { name: 'Ver prova' }).first().click()
+    await page.getByRole('button', { name: 'Iniciar prova completa' }).click()
+
+    await expect(page).toHaveURL(/\/dashboard\/attempts\/.+/)
+
+    const attemptId = new URL(page.url()).pathname.split('/').at(-1)
+    expect(attemptId).toBeTruthy()
+
+    const accessToken = await getSupabaseAccessToken(page)
+    expect(accessToken).toBeTruthy()
+
+    const attemptQuestions = await getJson<Array<{ question_id: string }>>(
+      request,
+      `attempt_questions?attempt_id=eq.${attemptId}&position=eq.1&select=question_id`,
+      accessToken!
+    )
+    expect(attemptQuestions).toHaveLength(1)
+
+    const questions = await getJson<Array<{ correta: AnswerOption }>>(
+      request,
+      `questions?id=eq.${attemptQuestions[0].question_id}&select=correta`,
+      accessToken!
+    )
+    expect(questions).toHaveLength(1)
+
+    const resposta = wrongAnswerFor(questions[0].correta)
+    const answerResponse = await request.post(
+      `${supabaseUrl}/rest/v1/answers?on_conflict=attempt_id,question_id`,
+      {
+        data: {
+          attempt_id: attemptId,
+          question_id: attemptQuestions[0].question_id,
+          resposta,
+          correta: true,
+        },
+        headers: {
+          ...restHeaders(accessToken!),
+          'Content-Type': 'application/json',
+          Prefer: 'resolution=merge-duplicates,return=representation',
+        },
+      }
+    )
+
+    expect(answerResponse.ok()).toBeTruthy()
+    const persistedAnswers = (await answerResponse.json()) as Array<{ correta: boolean }>
+    expect(persistedAnswers[0].correta).toBe(false)
+
+    const finishResponse = await request.post(`${supabaseUrl}/rest/v1/rpc/finish_attempt`, {
+      data: { p_attempt_id: attemptId },
+      headers: {
+        ...restHeaders(accessToken!),
+        'Content-Type': 'application/json',
+      },
+    })
+    expect(finishResponse.ok()).toBeTruthy()
+
+    const attempts = await getJson<Array<{ score: number }>>(
+      request,
+      `attempts?id=eq.${attemptId}&select=score`,
+      accessToken!
+    )
+    expect(attempts).toEqual([{ score: 0 }])
   })
 
   test('review keeps unanswered questions in only-wrong mode', async ({ page }) => {
