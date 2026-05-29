@@ -106,6 +106,7 @@ Notes:
 - `npm run typecheck` runs Next route type generation and strict TypeScript checking.
 - `npm run build` requires `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` because dashboard routes create typed Supabase SSR clients during prerendering.
 - `npm run test:e2e` requires the same Supabase env vars and runs authenticated flows only when `E2E_TEST_EMAIL` and `E2E_TEST_PASSWORD` are set.
+- Custom-exam E2E tests also require a controlled dataset. The dataset must include at least one discipline/topic pair with fewer than 10 available questions so shortage confirmation can be tested deterministically; the provided Supabase seed is the expected local baseline.
 
 ## Documentation
 
