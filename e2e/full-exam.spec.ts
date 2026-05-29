@@ -1,10 +1,18 @@
 import { expect, test } from '@playwright/test'
+import { cleanupAttempts, getAttemptIdFromPage } from './attempt-cleanup'
 import { hasE2ECredentials, login } from './auth'
 
 test.describe('full exam flow', () => {
-  test.beforeEach(async ({ page }) => {
-    test.skip(!hasE2ECredentials, 'Set E2E_TEST_EMAIL and E2E_TEST_PASSWORD to run Playwright flows.')
-    await login(page)
+  let createdAttemptIds: Set<string>
+
+  test.beforeEach(async ({ page }, testInfo) => {
+    test.skip(!hasE2ECredentials, 'Set E2E_TEST_EMAIL/E2E_TEST_EMAIL_TEMPLATE and E2E_TEST_PASSWORD to run Playwright flows.')
+    createdAttemptIds = new Set<string>()
+    await login(page, testInfo)
+  })
+
+  test.afterEach(async ({ page }) => {
+    await cleanupAttempts(page, createdAttemptIds)
   })
 
   test('starts a full exam and blocks finish with unanswered warnings first', async ({ page }) => {
@@ -13,6 +21,7 @@ test.describe('full exam flow', () => {
     await page.getByRole('button', { name: 'Iniciar prova completa' }).click()
 
     await expect(page).toHaveURL(/\/dashboard\/attempts\/.+/)
+    createdAttemptIds.add(getAttemptIdFromPage(page) ?? '')
     await page.getByRole('button', { name: 'Finalizar' }).click()
 
     await expect(page.getByRole('heading', { name: 'Questoes pendentes' })).toBeVisible()
@@ -30,6 +39,7 @@ test.describe('full exam flow', () => {
     await page.getByRole('button', { name: 'Iniciar prova completa' }).click()
 
     await expect(page).toHaveURL(/\/dashboard\/attempts\/.+/)
+    createdAttemptIds.add(getAttemptIdFromPage(page) ?? '')
     await page.getByRole('radio').first().check()
     await page.getByRole('button', { name: 'Salvar resposta' }).click()
 
@@ -45,6 +55,8 @@ test.describe('full exam flow', () => {
     await page.goto('/dashboard/exams')
     await page.getByRole('link', { name: 'Ver prova' }).first().click()
     await page.getByRole('button', { name: 'Iniciar prova completa' }).click()
+    await expect(page).toHaveURL(/\/dashboard\/attempts\/.+/)
+    createdAttemptIds.add(getAttemptIdFromPage(page) ?? '')
     await page.getByRole('button', { name: 'Finalizar' }).click()
     await page.getByRole('button', { name: 'Finalizar assim mesmo' }).click()
     await page.getByRole('button', { name: 'Confirmar finalizacao' }).click()
