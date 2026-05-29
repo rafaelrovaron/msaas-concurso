@@ -62,6 +62,7 @@ Linked to:
 - exam
 - discipline
 - topic
+- `exam_position` for source-exam ordering
 
 Question options are currently stored inline on the question row.
 
@@ -180,8 +181,9 @@ Current schema note:
 
 Ordering note:
 
+- full-exam question selection should order by `questions.exam_position`
 - the attempt must persist its own order in `attempt_questions`
-- agents should not claim faithful original exam ordering unless the data model explicitly supports it
+- legacy rows backfilled by UUID are deterministic, but real imports should provide the true source-exam position
 
 ## Custom exam
 
