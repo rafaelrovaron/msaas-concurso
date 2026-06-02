@@ -67,10 +67,10 @@ test.describe('full exam flow', () => {
     createdAttemptIds.add(getAttemptIdFromPage(page) ?? '')
     await page.getByRole('button', { name: 'Finalizar' }).click()
 
-    await expect(page.getByRole('heading', { name: 'Questoes pendentes' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Questões pendentes' })).toBeVisible()
     await page.getByRole('button', { name: 'Finalizar assim mesmo' }).click()
-    await expect(page.getByRole('heading', { name: 'Confirmar finalizacao' })).toBeVisible()
-    await page.getByRole('button', { name: 'Confirmar finalizacao' }).click()
+    await expect(page.getByRole('heading', { name: 'Confirmar finalização' })).toBeVisible()
+    await page.getByRole('button', { name: 'Confirmar finalização' }).click()
 
     await expect(page).toHaveURL(/\/dashboard\/attempts\/.+\/finish$/)
     await expect(page.getByText('Não respondidas:')).toBeVisible()
@@ -87,8 +87,8 @@ test.describe('full exam flow', () => {
     await page.getByRole('button', { name: 'Salvar resposta' }).click()
 
     await expect(page.getByText('Resposta salva.')).toBeVisible()
-    await page.getByRole('button', { name: 'Proxima' }).click()
-    await expect(page.getByRole('heading', { name: /Questao 2 de/ })).toBeVisible()
+    await page.getByRole('button', { name: 'Próxima' }).click()
+    await expect(page.getByRole('heading', { name: /Questão 2 de/ })).toBeVisible()
     await page.getByRole('button', { name: 'Anterior' }).click()
 
     await expect(page.getByRole('radio').first()).toBeChecked()
@@ -173,7 +173,7 @@ test.describe('full exam flow', () => {
     createdAttemptIds.add(getAttemptIdFromPage(page) ?? '')
     await page.getByRole('button', { name: 'Finalizar' }).click()
     await page.getByRole('button', { name: 'Finalizar assim mesmo' }).click()
-    await page.getByRole('button', { name: 'Confirmar finalizacao' }).click()
+    await page.getByRole('button', { name: 'Confirmar finalização' }).click()
 
     await page.getByRole('link', { name: 'Ver revisão' }).click()
     await page.getByLabel('Somente incorretas e não respondidas').check()

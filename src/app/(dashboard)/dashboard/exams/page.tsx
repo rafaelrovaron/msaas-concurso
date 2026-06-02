@@ -49,7 +49,7 @@ export default async function ExamsPage({
               Escolha uma prova real e treine no ritmo do concurso.
             </h1>
             <p className="mt-3 text-sm leading-7 text-slate-600 sm:text-base">
-              Filtre por banca, ano ou termo de busca. A ideia aqui e facilitar decisao rapida sem
+              Filtre por banca, ano ou termo de busca. A ideia aqui é facilitar decisão rápida sem
               esconder o contexto da prova.
             </p>
           </div>
@@ -141,7 +141,7 @@ export default async function ExamsPage({
         <div>
           <h2 className="text-xl font-semibold text-slate-950">Resultados</h2>
           <p className="mt-1 text-sm text-slate-500">
-            Selecione uma prova para ver contexto, quantidade de questoes e iniciar a tentativa.
+            Selecione uma prova para ver contexto, quantidade de questões e iniciar a tentativa.
           </p>
         </div>
 
@@ -175,7 +175,7 @@ export default async function ExamsPage({
 
             <h3 className="mt-5 text-xl font-semibold leading-8 text-slate-950">{exam.concurso}</h3>
             <p className="mt-2 text-sm leading-6 text-slate-600">
-              Simulado fiel ao exame original, ideal para medir ritmo, resistencia e desempenho.
+              Simulado fiel ao exame original, ideal para medir ritmo, resistência e desempenho.
             </p>
 
             <div className="mt-6 grid grid-cols-2 gap-3">

@@ -51,11 +51,11 @@ export default async function DashboardPage() {
             <h1 className="mt-3 max-w-2xl text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">
               {userName
                 ? `${userName}, vamos ganhar ritmo hoje.`
-                : 'Organize sua proxima sessao de estudo.'}
+                : 'Organize sua próxima sessão de estudo.'}
             </h1>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-600 sm:text-base">
               Retome uma tentativa em andamento, inicie uma prova completa ou monte um treino
-              personalizado com foco nas disciplinas em que voce precisa evoluir.
+              personalizado com foco nas disciplinas em que você precisa evoluir.
             </p>
 
             <div className="mt-6 flex flex-wrap gap-3">
@@ -63,7 +63,7 @@ export default async function DashboardPage() {
                 href={inProgressAttempt ? `/dashboard/attempts/${inProgressAttempt.id}` : '/dashboard/exams'}
                 className="inline-flex items-center justify-center rounded-xl bg-sky-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-sky-700"
               >
-                {inProgressAttempt ? 'Continuar tentativa' : 'Comecar prova completa'}
+                {inProgressAttempt ? 'Continuar tentativa' : 'Começar prova completa'}
               </Link>
               <Link
                 href="/dashboard/study"
@@ -84,7 +84,7 @@ export default async function DashboardPage() {
               <div className="mt-1 text-3xl font-semibold text-slate-950">{inProgressCount}</div>
             </div>
             <div className="rounded-2xl border border-slate-200/80 bg-slate-50/80 p-5">
-              <div className="text-sm text-slate-500">Aprovacoes recentes</div>
+              <div className="text-sm text-slate-500">Aprovações recentes</div>
               <div className="mt-1 text-3xl font-semibold text-slate-950">{approvedCount}</div>
             </div>
           </div>
@@ -95,9 +95,9 @@ export default async function DashboardPage() {
         <div className="rounded-[1.75rem] border border-white/70 bg-white/80 p-6 shadow-lg shadow-slate-200/30">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h2 className="text-xl font-semibold text-slate-950">Proximos passos</h2>
+              <h2 className="text-xl font-semibold text-slate-950">Próximos passos</h2>
               <p className="mt-1 text-sm text-slate-500">
-                Um painel simples para manter constancia e diminuir friccao.
+                Um painel simples para manter constância e diminuir fricção.
               </p>
             </div>
             <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700">
@@ -112,7 +112,7 @@ export default async function DashboardPage() {
             >
               <div>
                 <div className="text-sm font-semibold text-slate-900">
-                  {inProgressAttempt ? 'Retomar ultima tentativa' : 'Comecar uma prova completa'}
+                  {inProgressAttempt ? 'Retomar última tentativa' : 'Começar uma prova completa'}
                 </div>
                 <div className="mt-1 text-sm text-slate-500">
                   {inProgressAttempt
@@ -128,9 +128,9 @@ export default async function DashboardPage() {
               className="flex items-center justify-between rounded-2xl border border-slate-200/80 bg-slate-50/80 px-4 py-4 transition hover:border-sky-200 hover:bg-sky-50/70"
             >
               <div>
-                <div className="text-sm font-semibold text-slate-900">Montar treino rapido</div>
+                <div className="text-sm font-semibold text-slate-900">Montar treino rápido</div>
                 <div className="mt-1 text-sm text-slate-500">
-                  Foque em disciplina, assunto, banca e quantidade de questoes.
+                  Foque em disciplina, assunto, banca e quantidade de questões.
                 </div>
               </div>
               <span className="text-sm font-semibold text-sky-700">Criar</span>
@@ -143,7 +143,7 @@ export default async function DashboardPage() {
               <div>
                 <div className="text-sm font-semibold text-slate-900">Revisar desempenho</div>
                 <div className="mt-1 text-sm text-slate-500">
-                  Veja onde voce erra mais e o que precisa revisar primeiro.
+                  Veja onde você erra mais e o que precisa revisar primeiro.
                 </div>
               </div>
               <span className="text-sm font-semibold text-sky-700">Ver</span>
@@ -152,9 +152,9 @@ export default async function DashboardPage() {
         </div>
 
         <div className="rounded-[1.75rem] border border-white/70 bg-white/80 p-6 shadow-lg shadow-slate-200/30">
-          <h2 className="text-xl font-semibold text-slate-950">Ultimas tentativas finalizadas</h2>
+          <h2 className="text-xl font-semibold text-slate-950">Últimas tentativas finalizadas</h2>
           <p className="mt-1 text-sm text-slate-500">
-            Use os resultados recentes para decidir sua proxima sessao.
+            Use os resultados recentes para decidir sua próxima sessão.
           </p>
 
           <div className="mt-6 space-y-3">
@@ -175,7 +175,7 @@ export default async function DashboardPage() {
                         Finalizada em{' '}
                         {attempt.finished_at
                           ? new Date(attempt.finished_at).toLocaleDateString('pt-BR')
-                          : 'data indisponivel'}
+                          : 'data indisponível'}
                       </div>
                     </div>
                     <span
@@ -195,7 +195,7 @@ export default async function DashboardPage() {
               ))
             ) : (
               <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 p-6 text-sm text-slate-600">
-                Ainda nao ha tentativas finalizadas. Sua primeira prova ja vai alimentar esse painel.
+                Ainda não há tentativas finalizadas. Sua primeira prova já vai alimentar esse painel.
               </div>
             )}
           </div>

@@ -8,14 +8,14 @@ const sections = [
   {
     title: 'Estudo',
     items: [
-      { href: '/dashboard', label: 'Painel', description: 'Resumo e proximos passos' },
+      { href: '/dashboard', label: 'Painel', description: 'Resumo e próximos passos' },
       { href: '/dashboard/exams', label: 'Provas', description: 'Simulados completos' },
       { href: '/dashboard/study', label: 'Customizada', description: 'Monte por disciplina' },
     ],
   },
   {
     title: 'Desempenho',
-    items: [{ href: '/dashboard/progress', label: 'Progresso', description: 'Acompanhe sua evolucao' }],
+    items: [{ href: '/dashboard/progress', label: 'Progresso', description: 'Acompanhe sua evolução' }],
   },
 ]
 
@@ -39,7 +39,7 @@ export default function DashboardSidebar() {
           </p>
           <h2 className="mt-3 text-2xl font-semibold">Seu plano de estudo</h2>
           <p className="mt-2 text-sm leading-6 text-slate-300">
-            Use o painel para manter ritmo, acompanhar seus erros e retomar a proxima prova sem
+            Use o painel para manter ritmo, acompanhar seus erros e retomar a próxima prova sem
             perder contexto.
           </p>
         </div>
@@ -79,8 +79,8 @@ export default function DashboardSidebar() {
         </div>
 
         <div className="mt-6 rounded-2xl border border-slate-200/70 bg-white/80 p-4 text-sm text-slate-600 shadow-sm">
-          Revise primeiro as questoes erradas e nao respondidas. Esse ciclo costuma gerar ganho
-          rapido de desempenho.
+          Revise primeiro as questões erradas e não respondidas. Esse ciclo costuma gerar ganho
+          rápido de desempenho.
         </div>
       </div>
     </aside>
