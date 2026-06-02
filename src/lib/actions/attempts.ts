@@ -1,6 +1,7 @@
 'use server'
 
-import { startCustomAttempt, type CustomAttemptInput, type StartCustomAttemptResult } from '@/lib/attempts'
+import { startCustomAttempt, type StartCustomAttemptResult } from '@/lib/attempts'
+import { customAttemptInputSchema } from '@/lib/validations/study'
 import { createClient } from '@/lib/supabase/server'
 
 type SaveAnswerInput = {
@@ -130,9 +131,17 @@ export async function finishAttempt(attemptId: string) {
   return { ok: true }
 }
 
-export async function startCustomAttemptAction(
-  input: CustomAttemptInput
-): Promise<StartCustomAttemptResult> {
+export async function startCustomAttemptAction(input: unknown): Promise<StartCustomAttemptResult> {
+  const parsedInput = customAttemptInputSchema.safeParse(input)
+
+  if (!parsedInput.success) {
+    return {
+      message:
+        parsedInput.error.issues[0]?.message ?? 'Dados inválidos para gerar a prova personalizada.',
+      status: 'error',
+    }
+  }
+
   const supabase = await createClient()
 
   const {
@@ -148,7 +157,7 @@ export async function startCustomAttemptAction(
 
   try {
     return await startCustomAttempt({
-      ...input,
+      ...parsedInput.data,
       supabase,
       userId: user.id,
     })
