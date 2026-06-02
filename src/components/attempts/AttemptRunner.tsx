@@ -123,12 +123,10 @@ export default function AttemptRunner({
 
     setSaving(true)
 
-    const isCorrect = selected === current.correta
     const result = await saveAttemptAnswer({
       attemptId,
       questionId: current.id,
       resposta: selected,
-      correta: isCorrect,
     })
 
     if (result.error) {

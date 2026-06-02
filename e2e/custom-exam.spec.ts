@@ -1,23 +1,37 @@
 import { expect, test } from '@playwright/test'
+import { findCustomExamShortageFilter, hasE2EDatabaseConfig } from './custom-exam-data'
 import { hasE2ECredentials, login } from './auth'
+
+const requestedQuestionCount = 10
 
 test.describe('custom exam flow', () => {
   test.beforeEach(async ({ page }) => {
     test.skip(!hasE2ECredentials, 'Set E2E_TEST_EMAIL and E2E_TEST_PASSWORD to run Playwright flows.')
+    test.skip(
+      !hasE2EDatabaseConfig,
+      'Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to discover E2E question data.'
+    )
     await login(page)
   })
 
   test('shows shortage modal and lets the user return to filters', async ({ page }) => {
+    const shortageFilter = await findCustomExamShortageFilter(requestedQuestionCount)
+    test.skip(
+      !shortageFilter,
+      `Seed a controlled custom-exam dataset with a discipline/topic that has fewer than ${requestedQuestionCount} questions.`
+    )
+
     await page.goto('/dashboard/study')
-    await page.getByLabel('Disciplina').selectOption({ label: 'Legislacao' })
-    await page.getByLabel('Assunto').selectOption({ label: 'LGPD' })
-    await page.getByLabel('Quantidade de questões').selectOption('10')
+    await page.getByLabel('Disciplina').selectOption({ label: shortageFilter.discipline })
+    await page.getByLabel('Assunto').selectOption({ label: shortageFilter.topic })
+    await page.getByLabel('Quantidade de questões').selectOption(String(requestedQuestionCount))
     await page.getByRole('button', { name: 'Gerar prova personalizada' }).click()
 
     await expect(
       page.getByRole('heading', { name: 'Banco insuficiente para a quantidade solicitada' })
     ).toBeVisible()
-    await expect(page.getByText(/Você pediu 10 questões/)).toBeVisible()
+    await expect(page.getByText(`Você pediu ${requestedQuestionCount} questões`)).toBeVisible()
+    await expect(page.getByText(String(shortageFilter.availableQuestionCount))).toBeVisible()
 
     await page.getByRole('button', { name: 'Voltar e ajustar filtros' }).click()
     await expect(
@@ -27,17 +41,26 @@ test.describe('custom exam flow', () => {
   })
 
   test('creates a reduced custom exam after explicit confirmation', async ({ page }) => {
+    const shortageFilter = await findCustomExamShortageFilter(requestedQuestionCount)
+    test.skip(
+      !shortageFilter,
+      `Seed a controlled custom-exam dataset with a discipline/topic that has fewer than ${requestedQuestionCount} questions.`
+    )
+
     await page.goto('/dashboard/study')
-    await page.getByLabel('Disciplina').selectOption({ label: 'Legislacao' })
-    await page.getByLabel('Assunto').selectOption({ label: 'LGPD' })
-    await page.getByLabel('Quantidade de questões').selectOption('10')
+    await page.getByLabel('Disciplina').selectOption({ label: shortageFilter.discipline })
+    await page.getByLabel('Assunto').selectOption({ label: shortageFilter.topic })
+    await page.getByLabel('Quantidade de questões').selectOption(String(requestedQuestionCount))
     await page.getByRole('button', { name: 'Gerar prova personalizada' }).click()
 
-    const confirmButton = page.getByRole('button', { name: /Gerar com \d+ questões/ })
+    const confirmButton = page.getByRole('button', {
+      name: `Gerar com ${shortageFilter.availableQuestionCount} questões`,
+    })
     await expect(confirmButton).toBeVisible()
     await confirmButton.click()
 
     await expect(page).toHaveURL(/\/dashboard\/attempts\/.+/)
+    createdAttemptIds.add(getAttemptIdFromPage(page) ?? '')
     await expect(page.getByText('Prova personalizada')).toBeVisible()
   })
 })

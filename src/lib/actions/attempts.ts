@@ -1,20 +1,19 @@
 'use server'
 
-import { startCustomAttempt, type CustomAttemptInput, type StartCustomAttemptResult } from '@/lib/attempts'
+import { startCustomAttempt, type StartCustomAttemptResult } from '@/lib/attempts'
+import { customAttemptInputSchema } from '@/lib/validations/study'
 import { createClient } from '@/lib/supabase/server'
 
 type SaveAnswerInput = {
   attemptId: string
   questionId: string
   resposta: 'A' | 'B' | 'C' | 'D' | 'E'
-  correta: boolean
 }
 
 export async function saveAttemptAnswer({
   attemptId,
   questionId,
   resposta,
-  correta,
 }: SaveAnswerInput) {
   const supabase = await createClient()
 
@@ -53,6 +52,18 @@ export async function saveAttemptAnswer({
   if (attemptQuestionError || !attemptQuestion) {
     return { error: 'Questão não pertence a esta tentativa.' }
   }
+
+  const { data: question, error: questionError } = await supabase
+    .from('questions')
+    .select('correta')
+    .eq('id', questionId)
+    .maybeSingle()
+
+  if (questionError || !question) {
+    return { error: 'Questão não encontrada.' }
+  }
+
+  const correta = resposta === question.correta
 
   const { error: saveError } = await supabase
     .from('answers')
@@ -120,9 +131,17 @@ export async function finishAttempt(attemptId: string) {
   return { ok: true }
 }
 
-export async function startCustomAttemptAction(
-  input: CustomAttemptInput
-): Promise<StartCustomAttemptResult> {
+export async function startCustomAttemptAction(input: unknown): Promise<StartCustomAttemptResult> {
+  const parsedInput = customAttemptInputSchema.safeParse(input)
+
+  if (!parsedInput.success) {
+    return {
+      message:
+        parsedInput.error.issues[0]?.message ?? 'Dados inválidos para gerar a prova personalizada.',
+      status: 'error',
+    }
+  }
+
   const supabase = await createClient()
 
   const {
@@ -138,7 +157,7 @@ export async function startCustomAttemptAction(
 
   try {
     return await startCustomAttempt({
-      ...input,
+      ...parsedInput.data,
       supabase,
       userId: user.id,
     })
