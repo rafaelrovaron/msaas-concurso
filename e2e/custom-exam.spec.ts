@@ -60,6 +60,7 @@ test.describe('custom exam flow', () => {
     await confirmButton.click()
 
     await expect(page).toHaveURL(/\/dashboard\/attempts\/.+/)
+    createdAttemptIds.add(getAttemptIdFromPage(page) ?? '')
     await expect(page.getByText('Prova personalizada')).toBeVisible()
   })
 })

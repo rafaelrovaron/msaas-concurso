@@ -189,6 +189,12 @@ export type Database = {
     }
     Views: Record<string, never>
     Functions: {
+      cleanup_test_attempts: {
+        Args: {
+          p_attempt_ids: string[]
+        }
+        Returns: number
+      }
       create_attempt_with_questions: {
         Args: {
           p_discipline?: string | null
