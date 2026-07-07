@@ -46,14 +46,17 @@ function wrongAnswerFor(correctAnswer: AnswerOption): AnswerOption {
   return correctAnswer === 'A' ? 'B' : 'A'
 }
 
+const shouldSkipWithoutCredentials = !process.env.CI && !hasE2ECredentials
+
 test.describe('full exam flow', () => {
+  test.skip(
+    shouldSkipWithoutCredentials,
+    'Set E2E_TEST_EMAIL/E2E_TEST_EMAIL_TEMPLATE and E2E_TEST_PASSWORD to run Playwright flows.'
+  )
+
   let createdAttemptIds: Set<string>
 
   test.beforeEach(async ({ page }, testInfo) => {
-    test.skip(
-      !hasE2ECredentials,
-      'Set E2E_TEST_EMAIL/E2E_TEST_EMAIL_TEMPLATE and E2E_TEST_PASSWORD to run Playwright flows.'
-    )
     createdAttemptIds = new Set<string>()
     await login(page, testInfo)
   })

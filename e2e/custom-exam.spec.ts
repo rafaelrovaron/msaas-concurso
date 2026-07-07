@@ -5,19 +5,22 @@ import { hasE2ECredentials, login } from './auth'
 
 const requestedQuestionCount = 10
 
+const shouldSkipWithoutCredentials = !process.env.CI && !hasE2ECredentials
+const shouldSkipWithoutDatabaseConfig = !process.env.CI && !hasE2EDatabaseConfig
+
 test.describe('custom exam flow', () => {
+  test.skip(
+    shouldSkipWithoutCredentials,
+    'Set E2E_TEST_EMAIL/E2E_TEST_EMAIL_TEMPLATE and E2E_TEST_PASSWORD to run Playwright flows.'
+  )
+  test.skip(
+    shouldSkipWithoutDatabaseConfig,
+    'Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to discover E2E question data.'
+  )
+
   let createdAttemptIds: Set<string>
 
   test.beforeEach(async ({ page }, testInfo) => {
-    test.skip(
-      !hasE2ECredentials,
-      'Set E2E_TEST_EMAIL/E2E_TEST_EMAIL_TEMPLATE and E2E_TEST_PASSWORD to run Playwright flows.'
-    )
-    test.skip(
-      !hasE2EDatabaseConfig,
-      'Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to discover E2E question data.'
-    )
-
     createdAttemptIds = new Set<string>()
     await login(page, testInfo)
   })
