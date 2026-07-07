@@ -46,9 +46,11 @@ function wrongAnswerFor(correctAnswer: AnswerOption): AnswerOption {
   return correctAnswer === 'A' ? 'B' : 'A'
 }
 
+const shouldSkipWithoutCredentials = !process.env.CI && !hasE2ECredentials
+
 test.describe('full exam flow', () => {
   test.skip(
-    !hasE2ECredentials,
+    shouldSkipWithoutCredentials,
     'Set E2E_TEST_EMAIL/E2E_TEST_EMAIL_TEMPLATE and E2E_TEST_PASSWORD to run Playwright flows.'
   )
 
