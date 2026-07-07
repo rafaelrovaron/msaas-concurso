@@ -1,17 +1,29 @@
 import { expect, test } from '@playwright/test'
+import { cleanupAttempts, getAttemptIdFromPage } from './attempt-cleanup'
 import { findCustomExamShortageFilter, hasE2EDatabaseConfig } from './custom-exam-data'
 import { hasE2ECredentials, login } from './auth'
 
 const requestedQuestionCount = 10
 
 test.describe('custom exam flow', () => {
-  test.beforeEach(async ({ page }) => {
-    test.skip(!hasE2ECredentials, 'Set E2E_TEST_EMAIL and E2E_TEST_PASSWORD to run Playwright flows.')
+  let createdAttemptIds: Set<string>
+
+  test.beforeEach(async ({ page }, testInfo) => {
+    test.skip(
+      !hasE2ECredentials,
+      'Set E2E_TEST_EMAIL/E2E_TEST_EMAIL_TEMPLATE and E2E_TEST_PASSWORD to run Playwright flows.'
+    )
     test.skip(
       !hasE2EDatabaseConfig,
       'Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to discover E2E question data.'
     )
-    await login(page)
+
+    createdAttemptIds = new Set<string>()
+    await login(page, testInfo)
+  })
+
+  test.afterEach(async ({ page }) => {
+    await cleanupAttempts(page, createdAttemptIds)
   })
 
   test('shows shortage modal and lets the user return to filters', async ({ page }) => {
