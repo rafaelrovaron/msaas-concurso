@@ -20,7 +20,7 @@ export default async function ExamDetailPage({
   if (examError || !exam) {
     return (
       <div className="rounded-[1.75rem] border border-red-100 bg-red-50 p-6">
-        <p className="text-sm text-red-700">Prova nao encontrada.</p>
+        <p className="text-sm text-red-700">Prova não encontrada.</p>
         <p className="mt-2 text-xs text-slate-600">
           examId: <code>{examId}</code>
         </p>
@@ -42,7 +42,7 @@ export default async function ExamDetailPage({
   if (questionsError) {
     return (
       <div className="rounded-[1.75rem] border border-red-100 bg-red-50 p-6">
-        <p className="text-sm text-red-700">Erro ao carregar questoes: {questionsError.message}</p>
+        <p className="text-sm text-red-700">Erro ao carregar questões: {questionsError.message}</p>
       </div>
     )
   }
@@ -104,7 +104,7 @@ export default async function ExamDetailPage({
                 Modo: prova completa
               </span>
               <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5">
-                Questoes nao respondidas contam como erro
+                Questões não respondidas contam como erro
               </span>
             </div>
           </div>
@@ -115,7 +115,7 @@ export default async function ExamDetailPage({
               <div className="mt-1 text-3xl font-semibold text-slate-950">{exam.nota_corte}</div>
             </div>
             <div className="rounded-2xl border border-slate-200/80 bg-slate-50/80 p-5">
-              <div className="text-sm text-slate-500">Questoes</div>
+              <div className="text-sm text-slate-500">Questões</div>
               <div className="mt-1 text-3xl font-semibold text-slate-950">{questionCount}</div>
             </div>
             <div className="rounded-2xl border border-slate-200/80 bg-slate-50/80 p-5">
@@ -146,9 +146,9 @@ export default async function ExamDetailPage({
         </div>
 
         <div className="rounded-[1.75rem] border border-white/70 bg-white/80 p-6 shadow-lg shadow-slate-200/30">
-          <h2 className="text-xl font-semibold text-slate-950">Pronto para comecar?</h2>
+          <h2 className="text-xl font-semibold text-slate-950">Pronto para começar?</h2>
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            Inicie quando tiver um bloco de tempo disponivel. O ideal e responder sem interrupcoes
+            Inicie quando tiver um bloco de tempo disponível. O ideal é responder sem interrupções
             para medir desempenho com mais fidelidade.
           </p>
 

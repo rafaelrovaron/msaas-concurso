@@ -52,7 +52,7 @@ export default function LoginPage() {
         {authError && <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600">{authError}</div>}
 
         <div className="space-y-1.5">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">E-mail</Label>
           <Input id="email" type="email" placeholder="seu@email.com" {...register('email')} />
           {errors.email && <p className="text-sm text-red-600">{errors.email.message}</p>}
         </div>
@@ -73,7 +73,7 @@ export default function LoginPage() {
           </Link>
 
           <div>
-            Nao tem conta?{' '}
+            Não tem conta?{' '}
             <Link href="/signup" className="text-blue-600 hover:underline">
               Criar conta
             </Link>

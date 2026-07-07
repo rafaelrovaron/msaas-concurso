@@ -123,12 +123,10 @@ export default function AttemptRunner({
 
     setSaving(true)
 
-    const isCorrect = selected === current.correta
     const result = await saveAttemptAnswer({
       attemptId,
       questionId: current.id,
       resposta: selected,
-      correta: isCorrect,
     })
 
     if (result.error) {
@@ -170,7 +168,7 @@ export default function AttemptRunner({
 
       router.push(`/dashboard/attempts/${attemptId}/finish`)
     } catch {
-      setError('Nao foi possivel finalizar a prova.')
+      setError('Não foi possível finalizar a prova.')
       setIsFinishing(false)
     }
   }
@@ -196,15 +194,15 @@ export default function AttemptRunner({
 
             <div className="mt-2 flex flex-wrap items-center gap-2">
               <h1 className="text-2xl font-semibold tracking-tight text-slate-950">
-                Questao {index} de {total}
+                Questão {index} de {total}
               </h1>
 
               <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-                {progressPct}% concluido
+                {progressPct}% concluído
               </span>
 
               <span className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-700">
-                {missingCount === 0 ? 'Sem pendencias' : `${missingCount} pendencias`}
+                {missingCount === 0 ? 'Sem pendências' : `${missingCount} pendências`}
               </span>
             </div>
 
@@ -357,7 +355,7 @@ export default function AttemptRunner({
                 disabled={index === total}
                 className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:opacity-50"
               >
-                Proxima
+                Próxima
               </button>
             </div>
 
@@ -377,7 +375,7 @@ export default function AttemptRunner({
                 disabled={saving || isLocked || index === total}
                 className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 transition hover:bg-slate-50 disabled:opacity-50"
               >
-                Salvar e avancar
+                Salvar e avançar
               </button>
 
               <button
@@ -392,7 +390,7 @@ export default function AttemptRunner({
           </div>
 
           <p className="mt-4 text-xs text-slate-500">
-            O gabarito so aparece na revisao depois que a tentativa for finalizada.
+            O gabarito só aparece na revisão depois que a tentativa for finalizada.
           </p>
         </div>
 
@@ -441,7 +439,7 @@ export default function AttemptRunner({
             <div className="mt-4 space-y-2 text-xs text-slate-500">
               <div className="flex items-center gap-2">
                 <span className="h-3 w-3 rounded-full bg-slate-950" />
-                Questao atual
+                Questão atual
               </div>
               <div className="flex items-center gap-2">
                 <span className="h-3 w-3 rounded-full bg-emerald-500" />
@@ -461,15 +459,15 @@ export default function AttemptRunner({
           <div className="w-full max-w-lg rounded-[1.75rem] bg-white p-6 shadow-2xl shadow-slate-950/20">
             {finishStep === 'missing' ? (
               <>
-                <h2 className="text-lg font-semibold text-slate-950">Questoes pendentes</h2>
+                <h2 className="text-lg font-semibold text-slate-950">Questões pendentes</h2>
 
                 {missingList.length === 0 ? (
                   <p className="mt-2 text-sm font-medium text-emerald-700">
-                    Nenhuma pendente. Voce ja pode finalizar.
+                    Nenhuma pendente. Você já pode finalizar.
                   </p>
                 ) : (
                   <p className="mt-2 text-sm text-slate-600">
-                    Existem {missingList.length} questoes pendentes. Voce pode navegar ate elas ou
+                    Existem {missingList.length} questões pendentes. Você pode navegar até elas ou
                     finalizar a prova mesmo assim.
                   </p>
                 )}
@@ -522,9 +520,9 @@ export default function AttemptRunner({
               </>
             ) : (
               <>
-                <h2 className="text-lg font-semibold text-slate-950">Confirmar finalizacao</h2>
+                <h2 className="text-lg font-semibold text-slate-950">Confirmar finalização</h2>
                 <p className="mt-2 text-sm text-slate-600">
-                  As questoes nao respondidas serao contabilizadas como incorretas. Deseja finalizar
+                  As questões não respondidas serão contabilizadas como incorretas. Deseja finalizar
                   a prova mesmo assim?
                 </p>
 
@@ -546,7 +544,7 @@ export default function AttemptRunner({
                     disabled={isFinishing}
                     className="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50"
                   >
-                    {isFinishing ? 'Finalizando...' : 'Confirmar finalizacao'}
+                    {isFinishing ? 'Finalizando...' : 'Confirmar finalização'}
                   </button>
                 </div>
               </>
