@@ -1,4 +1,5 @@
 import { expect, test, type APIRequestContext, type Page } from '@playwright/test'
+import { cleanupAttempts, getAttemptIdFromPage } from './attempt-cleanup'
 import { hasE2ECredentials, login } from './auth'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -49,7 +50,10 @@ test.describe('full exam flow', () => {
   let createdAttemptIds: Set<string>
 
   test.beforeEach(async ({ page }, testInfo) => {
-    test.skip(!hasE2ECredentials, 'Set E2E_TEST_EMAIL/E2E_TEST_EMAIL_TEMPLATE and E2E_TEST_PASSWORD to run Playwright flows.')
+    test.skip(
+      !hasE2ECredentials,
+      'Set E2E_TEST_EMAIL/E2E_TEST_EMAIL_TEMPLATE and E2E_TEST_PASSWORD to run Playwright flows.'
+    )
     createdAttemptIds = new Set<string>()
     await login(page, testInfo)
   })
@@ -108,6 +112,7 @@ test.describe('full exam flow', () => {
 
     const attemptId = new URL(page.url()).pathname.split('/').at(-1)
     expect(attemptId).toBeTruthy()
+    createdAttemptIds.add(attemptId!)
 
     const accessToken = await getSupabaseAccessToken(page)
     expect(accessToken).toBeTruthy()
