@@ -47,13 +47,14 @@ function wrongAnswerFor(correctAnswer: AnswerOption): AnswerOption {
 }
 
 test.describe('full exam flow', () => {
+  test.skip(
+    !hasE2ECredentials,
+    'Set E2E_TEST_EMAIL/E2E_TEST_EMAIL_TEMPLATE and E2E_TEST_PASSWORD to run Playwright flows.'
+  )
+
   let createdAttemptIds: Set<string>
 
   test.beforeEach(async ({ page }, testInfo) => {
-    test.skip(
-      !hasE2ECredentials,
-      'Set E2E_TEST_EMAIL/E2E_TEST_EMAIL_TEMPLATE and E2E_TEST_PASSWORD to run Playwright flows.'
-    )
     createdAttemptIds = new Set<string>()
     await login(page, testInfo)
   })
